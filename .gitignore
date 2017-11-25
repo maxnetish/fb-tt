@@ -29,3 +29,6 @@ yarn-error.log*
 
 # IDEA
 .idea
+
+# npm
+package-lock.json

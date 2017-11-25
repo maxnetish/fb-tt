@@ -3,14 +3,8 @@
  * Copyright (c) 2015-present Kriasoft. All rights reserved.
  */
 
-/* @flow */
-
 import React from 'react';
 import styled from 'styled-components';
-
-const KRIASOFT_URL = 'https://www.kriasoft.com/';
-const LICENSE_URL =
-  'https://github.com/kriasoft/react-static-boilerplate/blob/master/LICENSE.txt';
 
 const Footer = styled.div`
   padding: 24px;
@@ -18,7 +12,9 @@ const Footer = styled.div`
   background-color: darkslategray;
 `;
 
-const Copyright = styled.span`padding-right: 0.5em;`;
+const Copyright = styled.span`
+  padding-right: 0.5em;
+`;
 
 const Separator = styled.span`
   padding-right: 0.5em;
@@ -41,14 +37,7 @@ const ExtLink = styled.a`
 
 class AppFooter extends React.Component {
   render() {
-    return (
-      <Footer>
-        <Copyright css="padding-right: 0.5em">&copy; 2015-present</Copyright>
-        <ExtLink href={KRIASOFT_URL}>Kriasoft</ExtLink>
-        <Separator>|</Separator>
-        <ExtLink href={LICENSE_URL}>MIT License</ExtLink>
-      </Footer>
-    );
+    return <Footer />;
   }
 }
 

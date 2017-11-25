@@ -3,14 +3,14 @@
  * Copyright (c) 2015-present Kriasoft. All rights reserved.
  */
 
-/* @flow */
-
 import React from 'react';
 import styled from 'styled-components';
 
 const color = '#00d8ff';
 
-const Circle = styled('circle')`fill: ${color};`;
+const Circle = styled('circle')`
+  fill: ${color};
+`;
 
 const Path = styled('path')`
   fill: none;
