@@ -6,7 +6,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import uniqueId from 'lodash/uniqueId';
-import remove from 'lodash/remove';
 import find from 'lodash/find';
 
 import {
@@ -17,6 +16,13 @@ import {
   Polyline,
   InfoWindow,
 } from 'react-google-maps';
+
+import {
+  SortableContainer,
+  SortableElement,
+  SortableHandle,
+  arrayMove,
+} from 'react-sortable-hoc';
 
 const AppWrapper = styled.div``;
 
@@ -41,6 +47,70 @@ const MapPaneBlock = styled.div`
   left: calc(32% + 30px);
 `;
 
+const UnstyledList = styled.ul`
+  list-style: none;
+  padding: 0;
+`;
+
+const StyledPointListItem = styled.div`
+  display: flex;
+  margin: 5px 0;
+  border: lightgray 1px solid;
+  padding: 5px;
+`;
+
+const StyledDragHandle = styled.i.attrs({
+  className: 'fa fa-bars',
+  'aria-hidden': true,
+  title: 'Drag to reorder',
+})`
+  cursor: move;
+  margin-right: 5px;
+`;
+
+const StyledPointListItemLabel = styled.span`
+  margin-right: 5px;
+  flex-grow: 1;
+`;
+
+const DragHandle = SortableHandle(() => <StyledDragHandle />);
+
+const SortableItem = SortableElement(
+  ({ point, onRemovePointClick, indexOfItem }) => {
+    return (
+      <li>
+        <StyledPointListItem>
+          <DragHandle />
+          <StyledPointListItemLabel>{point.label}</StyledPointListItemLabel>
+          <a
+            href=""
+            title="Remove point"
+            onClick={e => onRemovePointClick(e, indexOfItem)}
+          >
+            <i className="fa fa-minus-circle" aria-hidden="true" />
+          </a>
+        </StyledPointListItem>
+      </li>
+    );
+  },
+);
+
+const SortableList = SortableContainer(({ points, onRemovePointClick }) => {
+  return (
+    <UnstyledList>
+      {points.map((point, index) => (
+        <SortableItem
+          key={point.key}
+          index={index}
+          indexOfItem={index}
+          point={point}
+          onRemovePointClick={onRemovePointClick}
+        />
+      ))}
+    </UnstyledList>
+  );
+});
+
 const MapComponent = withScriptjs(
   withGoogleMap(props => {
     let polylinePath = props.points.map(p => ({ lat: p.lat, lng: p.lng }));
@@ -58,6 +128,7 @@ const MapComponent = withScriptjs(
             clickable={true}
             position={{ lat: p.lat, lng: p.lng }}
             onClick={e => props.onMarkerClick(p)}
+            onDragEnd={e => props.onMarkerDragEnd(e, p)}
           >
             {p.showInfoBox ? (
               <InfoWindow
@@ -102,16 +173,17 @@ class App extends React.Component {
               placeholder="Enter name of new point"
             />
           </form>
-          <ul>
-            {this.state.points.map(point => (
-              <li key={point.key}>
-                <span>{point.label}</span>
-                <a href="" onClick={e => this.onRemovePointClick(e, point.key)}>
-                  <i className="fa fa-minus-circle" aria-hidden="true" />
-                </a>
-              </li>
-            ))}
-          </ul>
+          <SortableList
+            points={this.state.points}
+            onSortEnd={({ oldIndex, newIndex }) =>
+              this.onDragPointListItemEnd({
+                oldIndex,
+                newIndex,
+              })
+            }
+            useDragHandle={true}
+            onRemovePointClick={(e, index) => this.onRemovePointClick(e, index)}
+          />
         </PointsPaneBlock>
         <MapPaneBlock>
           <MapComponent
@@ -126,6 +198,7 @@ class App extends React.Component {
             onCloseInfoWindowClick={(e, point) =>
               this.onCloseInfoWindowClick(point)
             }
+            onMarkerDragEnd={(e, point) => this.onMarkerDragEnd(e, point)}
           />
         </MapPaneBlock>
       </AppWrapper>
@@ -149,11 +222,11 @@ class App extends React.Component {
     this.inputNewPointRef.value = null;
   }
 
-  onRemovePointClick(e, pointKey) {
+  onRemovePointClick(e, index) {
     e.preventDefault();
 
     let newPoints = this.state.points.slice();
-    remove(newPoints, p => p.key === pointKey);
+    newPoints.splice(index, 1);
     this.setState({
       points: newPoints,
     });
@@ -174,6 +247,22 @@ class App extends React.Component {
     targetPoint.showInfoBox = false;
     this.setState({
       points: newPoints,
+    });
+  }
+
+  onMarkerDragEnd(e, point) {
+    let newPoints = this.state.points.slice();
+    let targetPoint = find(newPoints, p => p.key === point.key);
+    targetPoint.lat = e.latLng.lat();
+    targetPoint.lng = e.latLng.lng();
+    this.setState({
+      points: newPoints,
+    });
+  }
+
+  onDragPointListItemEnd({ oldIndex, newIndex }) {
+    this.setState({
+      points: arrayMove(this.state.points, oldIndex, newIndex),
     });
   }
 }
