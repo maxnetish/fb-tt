@@ -2,6 +2,8 @@
 
 This project was bootstraped with [React Static Boilerplate][rsb] by [Kriasoft][kriasoft] ([support][gitter]).
 
+See deployed app [here][deployed].
+
 ### Tech Stack
 
 * [Create React App][cra] for development and test infrastructure (see [user guide][cradocs])
@@ -81,3 +83,4 @@ $ npm build                           # Build the app for production and pre-ren
 [vcjs]: https://marketplace.visualstudio.com/items?itemName=mgmcdermott.vscode-language-babel
 [rgm]: https://github.com/tomchentw/react-google-maps
 [rsh]: https://github.com/clauderic/react-sortable-hoc
+[deployed]: https://goo.gl/hrxtam
