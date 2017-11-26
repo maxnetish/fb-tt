@@ -52,6 +52,10 @@ const UnstyledList = styled.ul`
   padding: 0;
 `;
 
+const UnstyledListItem = styled.li`
+  list-style: none;
+`;
+
 const StyledPointListItem = styled.div`
   display: flex;
   margin: 5px 0;
@@ -66,6 +70,7 @@ const StyledDragHandle = styled.i.attrs({
 })`
   cursor: move;
   margin-right: 5px;
+  color: lightgray;
 `;
 
 const StyledPointListItemLabel = styled.span`
@@ -73,24 +78,33 @@ const StyledPointListItemLabel = styled.span`
   flex-grow: 1;
 `;
 
+const StyledRemoveButton = styled.a.attrs({
+  href: '',
+  title: 'Remove point',
+})`
+  &,
+  &:hover,
+  &:active,
+  &:visited {
+    color: lightgray;
+    text-decoration: none;
+  }
+`;
+
 const DragHandle = SortableHandle(() => <StyledDragHandle />);
 
 const SortableItem = SortableElement(
   ({ point, onRemovePointClick, indexOfItem }) => {
     return (
-      <li>
+      <UnstyledListItem>
         <StyledPointListItem>
           <DragHandle />
           <StyledPointListItemLabel>{point.label}</StyledPointListItemLabel>
-          <a
-            href=""
-            title="Remove point"
-            onClick={e => onRemovePointClick(e, indexOfItem)}
-          >
-            <i className="fa fa-minus-circle" aria-hidden="true" />
-          </a>
+          <StyledRemoveButton onClick={e => onRemovePointClick(e, indexOfItem)}>
+            <i className="fa fa-times-circle" aria-hidden="true" />
+          </StyledRemoveButton>
         </StyledPointListItem>
-      </li>
+      </UnstyledListItem>
     );
   },
 );
@@ -112,39 +126,45 @@ const SortableList = SortableContainer(({ points, onRemovePointClick }) => {
 });
 
 const MapComponent = withScriptjs(
-  withGoogleMap(props => {
-    let polylinePath = props.points.map(p => ({ lat: p.lat, lng: p.lng }));
-    return (
-      <GoogleMap
-        defaultZoom={8}
-        defaultCenter={{ lat: -34.397, lng: 150.644 }}
-        options={{ fullscreenControl: false }}
-        ref={props.onMapMounted}
-      >
-        {props.points.map(p => (
-          <Marker
-            key={p.key}
-            draggable={true}
-            clickable={true}
-            position={{ lat: p.lat, lng: p.lng }}
-            onClick={e => props.onMarkerClick(p)}
-            onDragEnd={e => props.onMarkerDragEnd(e, p)}
-          >
-            {p.showInfoBox ? (
-              <InfoWindow
-                onCloseClick={e => props.onCloseInfoWindowClick(e, p)}
-              >
-                <div>{p.label}</div>
-              </InfoWindow>
-            ) : null}
-          </Marker>
-        ))}
-        {polylinePath && polylinePath.length ? (
-          <Polyline path={polylinePath} />
-        ) : null}
-      </GoogleMap>
-    );
-  }),
+  withGoogleMap(
+    ({
+      points,
+      onMapMounted,
+      onMarkerClick,
+      onMarkerDragEnd,
+      onCloseInfoWindowClick,
+    }) => {
+      let polylinePath = points.map(p => ({ lat: p.lat, lng: p.lng }));
+      return (
+        <GoogleMap
+          defaultZoom={8}
+          defaultCenter={{ lat: -34.397, lng: 150.644 }}
+          options={{ fullscreenControl: false }}
+          ref={onMapMounted}
+        >
+          {points.map(p => (
+            <Marker
+              key={p.key}
+              draggable={true}
+              clickable={true}
+              position={{ lat: p.lat, lng: p.lng }}
+              onClick={e => onMarkerClick(p)}
+              onDragEnd={e => onMarkerDragEnd(e, p)}
+            >
+              {p.showInfoBox ? (
+                <InfoWindow onCloseClick={e => onCloseInfoWindowClick(e, p)}>
+                  <div>{p.label}</div>
+                </InfoWindow>
+              ) : null}
+            </Marker>
+          ))}
+          {polylinePath && polylinePath.length ? (
+            <Polyline path={polylinePath} />
+          ) : null}
+        </GoogleMap>
+      );
+    },
+  ),
 );
 
 class App extends React.Component {
@@ -182,6 +202,7 @@ class App extends React.Component {
               })
             }
             useDragHandle={true}
+            lockAxis={'y'}
             onRemovePointClick={(e, index) => this.onRemovePointClick(e, index)}
           />
         </PointsPaneBlock>
