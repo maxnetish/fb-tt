@@ -14,7 +14,7 @@ let file, text;
 //
 // Inject "babel-plugin-relay"
 // -----------------------------------------------------------------------------
-file = path.resolve('./node_modules/babel-preset-react-app/index.js');
+file = path.resolve('./node_modules/babel-preset-react-app/create.js');
 text = fs.readFileSync(file, 'utf8');
 
 if (!text.includes('babel-plugin-relay')) {
@@ -31,7 +31,7 @@ if (!text.includes('babel-plugin-relay')) {
 //
 // Inject "babel-plugin-styled-components"
 // -----------------------------------------------------------------------------
-file = path.resolve('./node_modules/babel-preset-react-app/index.js');
+file = path.resolve('./node_modules/babel-preset-react-app/create.js');
 text = fs.readFileSync(file, 'utf8');
 
 if (!text.includes('babel-plugin-styled-components')) {
@@ -48,7 +48,7 @@ if (!text.includes('babel-plugin-styled-components')) {
 //
 // Inject "babel-plugin-transform-export-extensions"
 // -----------------------------------------------------------------------------
-file = path.resolve('./node_modules/babel-preset-react-app/index.js');
+file = path.resolve('./node_modules/babel-preset-react-app/create.js');
 text = fs.readFileSync(file, 'utf8');
 
 if (!text.includes('babel-plugin-transform-export-extensions')) {
